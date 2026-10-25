@@ -1,4 +1,3 @@
-
 const $ = (id) => document.getElementById(id);
 
 const form = $("search-form");
@@ -28,9 +27,13 @@ const printButton = $("print-collection");
 let selectedRelease = null;
 let frontArtwork = "";
 let backArtwork = "";
+let autoFront = "";
+let autoBack = "";
 let searchNumber = 0;
+let selectionNumber = 0;
 
 const COLLECTION_STORAGE_KEY = "miniY2K.collection.v1";
+const CAA = "https://coverartarchive.org/release";
 
 function loadCollection() {
   try {
@@ -79,6 +82,8 @@ let collection = loadCollection();
 function setStatus(message) {
   status.textContent = message;
 }
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 function showArtwork(img, placeholder, url) {
@@ -142,13 +147,236 @@ function getArtist(release) {
   return credits
     .map((credit) => {
       if (typeof credit === "string") return credit;
-      return credit.name || credit.artist?.name || "";
+      return (credit.name || credit.artist?.name || "") +
+        (credit.joinphrase || "");
     })
     .filter(Boolean)
-    .join("");
+    .join("")
+    .trim();
 }
 
-function createAlbumCard(release) {
+
+/* ------------------------------------------------------------------
+   SEARCH
+   ------------------------------------------------------------------ */
+
+// Lowercase, strip accents, and split into plain letter/number words.
+// This also removes every character that is special in Lucene queries.
+function tokenize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+}
+
+// Every word must appear in the title OR the artist.
+// The final word is treated as a prefix ("ave" finds "avenue").
+function buildAnywhereClause(tokens, fuzzy) {
+  const last = tokens.length - 1;
+
+  return tokens.map((token, i) => {
+    let term = token;
+    if (fuzzy) {
+      if (token.length > 3) term = `${token}~`;
+    } else if (i === last) {
+      term = `${token}*`;
+    }
+    return `(release:${term} OR artist:${term} OR artistname:${term})`;
+  }).join(" AND ");
+}
+
+// Try every way of splitting the words into "artist" + "album".
+// Example: "yellowcard ocean a" -> artist yellowcard, album "ocean a*".
+// Example: "yellow card ocean ave" -> artist "yellow card" or "yellowcard".
+function buildSplitClauses(tokens) {
+  const clauses = [];
+  const n = tokens.length;
+
+  const artistExpr = (words, prefixLast) => {
+    const withStar = (w, i) =>
+      prefixLast && i === words.length - 1 ? `${w}*` : w;
+
+    const spaced = words
+      .map((w, i) => `artist:${withStar(w, i)}`)
+      .join(" AND ");
+
+    const joined = prefixLast
+      ? `artist:${words.join("")}*`
+      : `artist:${words.join("")}`;
+
+    return words.length > 1
+      ? `((${spaced}) OR ${joined})`
+      : `(${spaced})`;
+  };
+
+  const releaseExpr = (words, prefixLast) =>
+    words
+      .map((w, i) =>
+        `release:${prefixLast && i === words.length - 1 ? `${w}*` : w}`
+      )
+      .join(" AND ");
+
+  for (let k = 1; k < n; k++) {
+    // Artist first, then album.
+    const aFirst = tokens.slice(0, k);
+    const rRest = tokens.slice(k);
+    clauses.push(
+      `(${artistExpr(aFirst, false)} AND ${releaseExpr(rRest, true)})`
+    );
+
+    // Album first, then artist.
+    const rFirst = tokens.slice(0, n - k);
+    const aLast = tokens.slice(n - k);
+    clauses.push(
+      `(${releaseExpr(rFirst, false)} AND ${artistExpr(aLast, true)})`
+    );
+  }
+
+  return clauses;
+}
+
+function buildMainQuery(tokens) {
+  const clauses = [];
+
+  // Exact phrase gets a boost so best matches rise to the top.
+  clauses.push(`(release:"${tokens.join(" ")}")^4`);
+  clauses.push(`(${buildAnywhereClause(tokens, false)})`);
+  clauses.push(...buildSplitClauses(tokens));
+
+  // "yellow card" -> artist "yellowcard"
+  if (tokens.length > 1) {
+    clauses.push(`(artist:${tokens.join("")}*)`);
+  }
+
+  return clauses.join(" OR ");
+}
+
+async function musicBrainzSearch(query) {
+  const url = new URL("https://musicbrainz.org/ws/2/release/");
+  url.searchParams.set("query", query);
+  url.searchParams.set("fmt", "json");
+  url.searchParams.set("limit", "60");
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`MusicBrainz returned HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.releases || [];
+}
+
+// Tries a strict search first, then looser ones until something is found.
+async function smartSearch(rawQuery, isCurrent) {
+  const tokens = tokenize(rawQuery);
+  if (!tokens.length) return [];
+
+  const main = buildMainQuery(tokens);
+
+  const attempts = [
+    `(${main}) AND status:official AND primarytype:album`,
+    `(${main}) AND status:official`,
+    main,
+    buildAnywhereClause(tokens, true)
+  ];
+
+  for (let i = 0; i < attempts.length; i++) {
+    if (i > 0) {
+      // MusicBrainz asks for no more than about 1 request per second.
+      await wait(1100);
+      if (!isCurrent()) return [];
+    }
+
+    const releases = await musicBrainzSearch(attempts[i]);
+    if (!isCurrent()) return [];
+
+    if (releases.length) return releases;
+  }
+
+  return [];
+}
+
+function normalizeKey(text) {
+  return tokenize(text || "").join(" ");
+}
+
+// Merges many editions of the same album into one entry.
+// The other editions are kept so we can look for artwork in them.
+function groupReleases(releases) {
+  const groups = new Map();
+
+  releases.forEach((release) => {
+    const key =
+      normalizeKey(release.title) + "|" + normalizeKey(getArtist(release));
+
+    if (!groups.has(key)) {
+      groups.set(key, { release, editions: [] });
+    }
+
+    groups.get(key).editions.push(release);
+  });
+
+  return Array.from(groups.values());
+}
+
+
+/* ------------------------------------------------------------------
+   ARTWORK LOOKUP
+   ------------------------------------------------------------------ */
+
+// Checks whether an image URL really exists by trying to load it.
+function imageExists(url, timeoutMs = 12000) {
+  return new Promise((resolve) => {
+    const probe = new Image();
+    const timer = setTimeout(() => {
+      probe.onload = probe.onerror = null;
+      resolve(false);
+    }, timeoutMs);
+
+    probe.onload = () => {
+      clearTimeout(timer);
+      resolve(true);
+    };
+
+    probe.onerror = () => {
+      clearTimeout(timer);
+      resolve(false);
+    };
+
+    probe.src = url;
+  });
+}
+
+// Goes through the editions one by one until one has the requested image.
+// kind is "front" or "back".
+async function findArtwork(editions, kind, isCurrent) {
+  const limit = Math.min(editions.length, 8);
+
+  for (let i = 0; i < limit; i++) {
+    const url = `${CAA}/${editions[i].id}/${kind}-500`;
+
+    if (await imageExists(url)) return url;
+    if (!isCurrent()) return "";
+  }
+
+  return "";
+}
+
+
+/* ------------------------------------------------------------------
+   ALBUM CARDS
+   ------------------------------------------------------------------ */
+
+function createAlbumCard(group) {
+  const editions = group.editions;
+  const release = group.release;
+
+  // The edition whose cover is currently showing on the card.
+  let shownEdition = 0;
+
   const card = document.createElement("article");
   card.className = "album-card";
 
@@ -156,14 +384,18 @@ function createAlbumCard(release) {
   image.alt = `Artwork for ${release.title}`;
   image.loading = "lazy";
 
-  const artworkUrl =
-    `https://coverartarchive.org/release/${release.id}/front-250`;
-
+  // If this edition has no cover, quietly try the next edition.
   image.onerror = () => {
-    image.style.display = "none";
+    shownEdition++;
+
+    if (shownEdition < Math.min(editions.length, 5)) {
+      image.src = `${CAA}/${editions[shownEdition].id}/front-250`;
+    } else {
+      image.style.display = "none";
+    }
   };
 
-  image.src = artworkUrl;
+  image.src = `${CAA}/${editions[0].id}/front-250`;
 
   const info = document.createElement("div");
   info.className = "album-card-info";
@@ -175,33 +407,76 @@ function createAlbumCard(release) {
   artist.textContent = getArtist(release) || "Unknown artist";
 
   const year = document.createElement("p");
-  year.textContent = release.date
-    ? `Released: ${release.date.slice(0, 4)}`
+  const dated = editions
+    .map((e) => (e.date || "").slice(0, 4))
+    .filter(Boolean)
+    .sort()[0];
+
+  year.textContent = dated
+    ? `Released: ${dated}`
     : "Release date unavailable";
 
   const selectButton = document.createElement("button");
   selectButton.type = "button";
   selectButton.textContent = "Use this album";
 
-  selectButton.addEventListener("click", () => {
+  selectButton.addEventListener("click", async () => {
+    const thisSelection = ++selectionNumber;
+    const isCurrent = () => thisSelection === selectionNumber;
+
     selectedRelease = release;
 
     titleInput.value = release.title || "";
     artistInput.value = getArtist(release);
 
-    frontArtwork = artworkUrl;
-    backArtwork = "";
+    // Try the edition showing on the card first, then the others.
+    const ordered = [
+      editions[Math.min(shownEdition, editions.length - 1)],
+      ...editions.filter((_, i) => i !== shownEdition)
+    ];
 
+    // Show something right away while we search for better artwork.
+    autoFront = `${CAA}/${ordered[0].id}/front-250`;
+    autoBack = "";
+    frontArtwork = autoFront;
+    backArtwork = "";
     updatePreview();
 
-    setStatus(
-      `Selected "${release.title}". Customize your label below.`
-    );
+    setStatus(`Selected "${release.title}". Looking for front and back artwork... 💿`);
 
     $("label-preview").scrollIntoView({
       behavior: "smooth",
       block: "center"
     });
+
+    const [front, back] = await Promise.all([
+      findArtwork(ordered, "front", isCurrent),
+      findArtwork(ordered, "back", isCurrent)
+    ]);
+
+    if (!isCurrent()) return;
+
+    if (front) {
+      autoFront = front;
+      // Don't overwrite artwork the user uploaded in the meantime.
+      if (!$("front-upload").value) frontArtwork = front;
+    }
+
+    if (back) {
+      autoBack = back;
+      if (!$("back-upload").value) backArtwork = back;
+    }
+
+    updatePreview();
+
+    if (back) {
+      setStatus(`Selected "${release.title}" with front and back artwork. Customize your label below.`);
+    } else {
+      setStatus(
+        `Selected "${release.title}". No back cover was found in the archive for this album — ` +
+        `you can upload your own back artwork below.`
+      );
+    }
   });
 
   info.append(title, artist, year, selectButton);
@@ -217,6 +492,7 @@ form.addEventListener("submit", async (event) => {
   if (!query) return;
 
   const thisSearch = ++searchNumber;
+  const isCurrent = () => thisSearch === searchNumber;
 
   searchButton.disabled = true;
   searchButton.textContent = "Searching...";
@@ -225,49 +501,31 @@ form.addEventListener("submit", async (event) => {
   setStatus("Looking through the record collection... 💿");
 
   try {
-    const url = new URL(
-      "https://musicbrainz.org/ws/2/release/"
-    );
+    const releases = await smartSearch(query, isCurrent);
 
-    url.searchParams.set("query", query);
-    url.searchParams.set("fmt", "json");
-    url.searchParams.set("limit", "12");
-    url.searchParams.set("inc", "artist-credits");
-
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(
-        `MusicBrainz returned HTTP ${response.status}`
-      );
-    }
-
-    const data = await response.json();
-
-    if (thisSearch !== searchNumber) return;
-
-    const releases = data.releases || [];
+    if (!isCurrent()) return;
 
     if (!releases.length) {
       setStatus(
-        "No matching releases found. Try another album title or artist."
+        "No matching releases found. Try fewer words, or just the artist name."
       );
       return;
     }
 
+    const groups = groupReleases(releases).slice(0, 18);
     const fragment = document.createDocumentFragment();
 
-    releases.forEach((release) => {
-      fragment.appendChild(createAlbumCard(release));
+    groups.forEach((group) => {
+      fragment.appendChild(createAlbumCard(group));
     });
 
     results.appendChild(fragment);
 
     setStatus(
-      `Found ${releases.length} releases. Choose the edition you want!`
+      `Found ${groups.length} ${groups.length === 1 ? "album" : "albums"}. Choose the one you want!`
     );
   } catch (error) {
-    if (thisSearch !== searchNumber) return;
+    if (!isCurrent()) return;
 
     console.error("Album search failed:", error);
 
@@ -276,7 +534,7 @@ form.addEventListener("submit", async (event) => {
       "If the service is temporarily unavailable or rate-limited, wait a little before retrying."
     );
   } finally {
-    if (thisSearch === searchNumber) {
+    if (isCurrent()) {
       searchButton.disabled = false;
       searchButton.textContent = "Search!";
     }
@@ -319,11 +577,9 @@ $("back-upload").addEventListener("change", (event) => {
 });
 
 $("reset-art").addEventListener("click", () => {
-  frontArtwork = selectedRelease
-    ? `https://coverartarchive.org/release/${selectedRelease.id}/front-250`
-    : "";
-
-  backArtwork = "";
+  // Go back to the artwork found automatically for the selected album.
+  frontArtwork = autoFront;
+  backArtwork = autoBack;
 
   $("front-upload").value = "";
   $("back-upload").value = "";
@@ -363,10 +619,10 @@ function makeCollectionItem(item, index) {
   remove.textContent = "Remove";
 
   remove.addEventListener("click", () => {
-  collection.splice(index, 1);
-  renderCollection();
-  saveCollection();
-});
+    collection.splice(index, 1);
+    renderCollection();
+    saveCollection();
+  });
 
   card.append(image, title, artist, remove);
 
@@ -415,8 +671,7 @@ addButton.addEventListener("click", () => {
     spineColor: spineColor.value,
     spineTextColor: spineTextColor.value,
     spineFont: spineFont.value
-
-});
+  });
 
   renderCollection();
 
