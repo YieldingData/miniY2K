@@ -3,6 +3,7 @@
 
 ### PRINT IT. STICK IT. TAP IT. PLAY IT.
 
+[Try it out](https://example.com)
 **Your music. Miniaturized.**
 
 miniY2K is a browser-based label maker for creating miniature album collectibles inspired by the golden age of CD collecting. Combining custom 3D-printed frames, album artwork, and NFC technology, it brings the nostalgia of mini CD jewel cases into the modern era.
