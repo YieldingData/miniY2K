@@ -29,18 +29,80 @@ let selectedRelease = null;
 let frontArtwork = "";
 let backArtwork = "";
 let searchNumber = 0;
-let collection = [];
+
+const COLLECTION_STORAGE_KEY = "miniY2K.collection.v1";
+
+function loadCollection() {
+  try {
+    const saved = localStorage.getItem(COLLECTION_STORAGE_KEY);
+    if (!saved) return [];
+
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(item =>
+      item &&
+      typeof item.title === "string" &&
+      item.title.trim().length > 0
+    ).map(item => ({
+      title: item.title,
+      artist: item.artist || "",
+      front: item.front || "",
+      back: item.back || "",
+      spineColor: item.spineColor || "#17172b",
+      spineTextColor: item.spineTextColor || "#ffffff",
+      spineFont: item.spineFont || "Arial, sans-serif"
+    }));
+  } catch (error) {
+    console.error("Could not load collection:", error);
+    return [];
+  }
+}
+
+function saveCollection() {
+  try {
+    localStorage.setItem(
+      COLLECTION_STORAGE_KEY,
+      JSON.stringify(collection)
+    );
+    return true;
+  } catch (error) {
+    console.error("Could not save collection:", error);
+    setStatus("Could not save your collection. Browser storage may be full.");
+    return false;
+  }
+}
+
+let collection = loadCollection();
+
 
 function setStatus(message) {
   status.textContent = message;
 }
 
+
 function showArtwork(img, placeholder, url) {
+  // If the artwork hasn't changed, leave the image alone.
+  // This prevents title/color edits from restarting image loads.
+  if (img.dataset.artworkUrl === (url || "")) {
+    if (url && img.complete && img.naturalWidth > 0) {
+      img.style.display = "block";
+      placeholder.style.display = "none";
+    }
+    return;
+  }
+
+  img.dataset.artworkUrl = url || "";
+  img.onload = null;
+  img.onerror = null;
+
   img.style.display = "none";
   placeholder.style.display = "grid";
-  img.removeAttribute("src");
 
-  if (!url) return;
+  if (!url) {
+    img.removeAttribute("src");
+    return;
+  }
 
   img.onload = () => {
     img.style.display = "block";
@@ -54,6 +116,7 @@ function showArtwork(img, placeholder, url) {
 
   img.src = url;
 }
+
 
 function updatePreview() {
   const title = titleInput.value.trim() || "YOUR ALBUM";
@@ -351,12 +414,16 @@ addButton.addEventListener("click", () => {
     spineColor: spineColor.value,
     spineTextColor: spineTextColor.value,
     spineFont: spineFont.value
-  });
+
+});
 
   renderCollection();
 
-  setStatus(`"${title}" added to your mini collection! ✨`);
+  if (saveCollection()) {
+    setStatus(`"${title}" added to your mini collection! ✨`);
+  }
 });
+
 
 function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
