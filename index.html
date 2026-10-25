@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#245edb">
+  <title>miniY2K — Your Music, Miniaturized</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">💿 miniY2K</div>
+    <div class="topbar-tagline">YOUR MUSIC. MINIATURIZED.</div>
+    <a href="#collection" class="top-link">My Collection ↓</a>
+  </header>
+
+  <main class="desktop">
+    <section class="welcome window">
+      <div class="window-title">
+        <span>✨ Welcome to miniY2K</span>
+        <span>— □ ×</span>
+      </div>
+      <div class="welcome-body">
+        <div class="welcome-icon">💿</div>
+        <div>
+          <h1>Your favorite albums. Tiny forever.</h1>
+          <p>Find an album, design a miniature wraparound label,
+          and start building your physical music collection.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="window">
+      <div class="window-title">
+        <span>🔎 Album Explorer</span>
+        <span>— □ ×</span>
+      </div>
+      <div class="panel">
+        <form id="search-form">
+          <label for="album-search">Search by album or artist</label>
+          <div class="search-row">
+            <input id="album-search" type="search"
+              placeholder="Try Britney Spears, Radiohead..."
+              required>
+            <button type="submit" id="search-button">Search!</button>
+          </div>
+        </form>
+        <p id="search-status" class="status" aria-live="polite">
+          Ready when you are. Search for an album to begin!
+        </p>
+        <div id="search-results" class="results"></div>
+      </div>
+    </section>
+
+    <section class="window">
+      <div class="window-title">
+        <span>🎨 Label Workshop</span>
+        <span>— □ ×</span>
+      </div>
+      <div class="panel workshop">
+        <div class="editor">
+          <label for="album-title">Album title</label>
+          <input id="album-title" maxlength="100"
+            placeholder="Your album title">
+
+          <label for="album-artist">Artist</label>
+          <input id="album-artist" maxlength="100"
+            placeholder="Artist name">
+
+          <label for="spine-color">Spine background</label>
+          <input id="spine-color" type="color" value="#17172b">
+
+          <label for="spine-text-color">Spine text color</label>
+          <input id="spine-text-color" type="color" value="#ffffff">
+
+          <label for="spine-font">Spine font</label>
+          <select id="spine-font">
+            <option value="Arial, sans-serif">Sans serif</option>
+            <option value="Georgia, serif">Serif</option>
+            <option value="monospace">Monospace</option>
+          </select>
+
+          <label for="front-upload">Custom front artwork</label>
+          <input id="front-upload" type="file" accept="image/*">
+
+          <label for="back-upload">Custom back artwork</label>
+          <input id="back-upload" type="file" accept="image/*">
+
+          <button type="button" id="reset-art" class="secondary">
+            Clear custom artwork
+          </button>
+
+          <button type="button" id="add-label" class="primary" disabled>
+            ＋ Add to my collection
+          </button>
+        </div>
+
+        <div class="preview-area">
+          <div class="preview-heading">
+            <h2>Live label preview</h2>
+            <span class="mini-badge">MINI EDITION</span>
+          </div>
+
+          <div id="label-preview" class="label-preview">
+            <div class="label-front">
+              <img id="front-preview" alt="Front cover artwork">
+              <div id="front-placeholder" class="art-placeholder">
+                💿<br><span>FRONT COVER</span>
+              </div>
+            </div>
+
+            <div id="spine-preview" class="label-spine">
+              <span id="spine-title">YOUR ALBUM</span>
+            </div>
+
+            <div class="label-back">
+              <img id="back-preview" alt="Back cover artwork">
+              <div id="back-placeholder" class="art-placeholder">
+                ✨<br><span>BACK COVER</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="preview-note">
+            Screen preview only. Physical print dimensions are configured
+            separately in the print workflow.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="collection" class="window">
+      <div class="window-title">
+        <span>📚 My Mini Collection</span>
+        <span>— □ ×</span>
+      </div>
+      <div class="panel">
+        <div class="collection-heading">
+          <p>Collect your favorites, one tiny album at a time.</p>
+          <span id="collection-count" class="count">0 albums</span>
+        </div>
+        <div id="collection-list" class="collection-list">
+          <div class="empty-state">
+            <span>💿</span>
+            <p>Your collection is waiting to happen.</p>
+            <small>Search for an album and add your first label!</small>
+          </div>
+        </div>
+        <button type="button" id="print-collection" class="primary" disabled>
+          🖨️ Print labels
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      <p>💿 miniY2K · Made for music lovers. Inspired by the year 2000.</p>
+      <p>Album metadata: MusicBrainz · Artwork: Cover Art Archive</p>
+    </footer>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
