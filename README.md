@@ -1,190 +1,273 @@
-💿 miniY2K
 
-PRINT IT. STICK IT. TAP IT. PLAY IT.
+# 💿 miniY2K
 
-Your music. Miniaturized.
+### PRINT IT. STICK IT. TAP IT. PLAY IT.
 
-miniY2K is a little love letter to the golden age of CD collecting. It brings the nostalgia of mini CD jewel cases into the NFC era, combining custom 3D-printed frames, album artwork, and tap-to-play functionality.
+**Your music. Miniaturized.**
 
-Search for an album, create a custom wraparound label, print it on sticker paper, and turn it into a tiny physical music collectible.
+miniY2K is a browser-based label maker for creating miniature album collectibles inspired by the golden age of CD collecting. Combining custom 3D-printed frames, album artwork, and NFC technology, it brings the nostalgia of mini CD jewel cases into the modern era.
 
-Think Y2K aesthetics, shiny CDs, Windows XP, MP3 players, and the joy of having your favorite albums on display — just a whole lot smaller. ✨
+Search for an album, customize its wraparound label, print it on sticker paper, and turn it into a tiny physical music collectible.
 
-🌐 What is miniY2K?
+Think Y2K aesthetics, shiny CDs, Windows XP, MP3 players, and the joy of displaying your favorite albums — just a whole lot smaller. ✨
 
-miniY2K is a browser-based label maker for creating miniature album collectibles.
+---
 
-Each collectible uses a custom 3D-printed frame designed to hold a 25 mm NFC puck. A single adhesive label wraps around the frame, bringing the album's front cover, spine, and back cover together in one continuous piece.
+## 📖 Table of Contents
 
-Tap the finished collectible with a compatible phone, and the NFC tag can launch the album or its associated music link.
+- [✨ Features](#-features)
+- [🚀 How It Works](#-how-it-works)
+- [📐 Label Specifications](#-label-specifications)
+- [🖨️ Printing Guide](#️-printing-guide)
+- [📱 NFC Integration](#-nfc-integration)
+- [🛠️ Technology](#️-technology)
+- [🎨 Artwork and Data Sources](#-artwork-and-data-sources)
+- [🗺️ Roadmap](#️-roadmap)
+- [🤝 Contributing](#-contributing)
+- [📜 License](#-license)
 
-No tiny scissors. No fiddly paper panels. Just print, peel, stick, and tap.
+---
 
-✨ Features
-🔎 Album Search
+## ✨ Features
+
+### 🔎 Album Search and Artwork
 
 Find your favorite albums without manually hunting down every image.
 
-Search for albums by title or artist.
-Browse matching releases to identify the correct edition.
-Retrieve available album artwork through MusicBrainz and the Cover Art Archive.
-Select the front and back artwork you want to use.
-Upload your own images when the right artwork isn't available.
-🎨 Automatic Spine Generator
+- Search for albums by title or artist.
+- Browse matching releases to identify the correct edition.
+- Retrieve available album artwork through the MusicBrainz API and Cover Art Archive.
+- Select front and back artwork for your label.
+- Upload your own images when suitable artwork isn't available.
 
-Finding a clean image of an album spine can be difficult. miniY2K can generate one for you.
+### 🎨 Automatic Spine Generator
 
-Automatically populate the album title and artist.
-Choose from serif, sans-serif, and monospaced font styles.
-Customize text and background colors.
-Adjust the layout to fit narrow spines and longer titles.
-Use an image for the spine instead whenever you have one.
-🏷️ One-Piece Wraparound Labels
+Album spine artwork can be difficult to find. miniY2K provides a customizable alternative.
 
-Every label combines three panels into one continuous design:
+- Automatically populate the album title and artist.
+- Choose serif, sans-serif, or monospaced typography.
+- Customize text and background colors.
+- Adjust text layout to accommodate narrow spines and longer titles.
+- Use custom spine artwork whenever available.
 
-Panel	Purpose
-Front	Album cover artwork
-Spine	Generated album title and artist, or custom artwork
-Back	Back-cover artwork or a custom image
+### 🏷️ One-Piece Wraparound Labels
 
-The finished artwork is designed to wrap around the 3D-printed frame as a single sticker.
+Each label combines three panels into one continuous design.
 
-One sticker. Three panels. Zero cutting.
+| Panel | Purpose |
+| --- | --- |
+| Front | Album cover artwork |
+| Spine | Generated title and artist typography, or custom artwork |
+| Back | Back-cover artwork or a custom image |
 
-📄 Mixed-Album Print Sheets
+The finished design wraps around a custom 3D-printed frame as a single adhesive label.
 
-Why print 30 copies of the same album?
+**One sticker. Three panels. Zero cutting.**
 
-miniY2K is designed to let you build a sheet with a different album in each position.
+### 📄 Mixed-Album Print Sheets
 
-Add multiple albums to a print queue.
-Mix and match different releases and artwork.
-Preview the combined label designs.
-Adjust sheet margins, rows, columns, and spacing.
-Export a PDF for US Letter paper.
-Print at actual size for accurate physical assembly.
-📐 Print Alignment Controls
+Build a collection without wasting sticker paper on duplicate designs.
 
-Sticker sheets can vary, even when the labels have the same nominal dimensions.
+- Add multiple albums to a print queue.
+- Mix different albums, releases, and artwork on one sheet.
+- Preview the combined label designs.
+- Configure rows, columns, margins, and spacing.
+- Export a print-ready PDF formatted for US Letter paper.
+- Print at actual size for accurate physical assembly.
 
-miniY2K provides alignment settings to help you dial in your printer and label stock.
+### 📐 Print Alignment Controls
 
-Label size: 1 × 2⅝ inches
-Paper: US Letter, 8.5 × 11 inches
-Adjustable horizontal and vertical spacing
-Adjustable top and left margins
-Test-print workflow for checking alignment before using adhesive stock
-📱 NFC-Ready Collectibles
+Sticker paper and printers don't always align perfectly. Adjustable layout settings help you calibrate your output.
 
-The physical design is intended to house a 25 mm NFC puck inside a custom 3D-printed frame.
+- Configure horizontal and vertical spacing.
+- Adjust top and left margins.
+- Match the layout to your sticker stock.
+- Test alignment on plain paper before printing on adhesive labels.
 
-Once the NFC tag is programmed with a music link, a compatible phone can read it with a tap.
+### 📱 NFC-Ready Collectibles
 
-The label maker creates the artwork; NFC programming and the 3D-printed frame are separate parts of the project.
+Each collectible is designed around a custom 3D-printed frame that accommodates a 25 mm NFC puck.
 
-🚀 How It Works
+Once programmed with a music link, the NFC tag can launch the associated album or music destination when tapped with a compatible phone.
 
-The workflow is designed to be as simple as possible.
+The label maker handles artwork and print preparation. NFC programming and physical frame fabrication are separate parts of the workflow.
 
-Search — Find an album by name or artist.
-Select — Choose the correct release and available artwork.
-Customize — Adjust the front, spine, and back panels.
-Queue — Add the album to your mixed print sheet.
-Export — Generate a print-ready PDF.
-Print — Print at 100% scale on compatible sticker paper.
-Assemble — Peel the sticker and wrap it around the 3D-printed frame.
-Tap — Program the NFC puck with the album's music link and enjoy your mini collectible.
+---
 
-PRINT IT. STICK IT. TAP IT. PLAY IT.
+## 🚀 How It Works
 
-🛠️ Technology
+Turn your favorite albums into miniature physical collectibles in seven steps.
 
-miniY2K is designed as a lightweight browser application.
+1. **Search** — Find an album by title or artist.
+2. **Select** — Choose the correct release and available artwork.
+3. **Customize** — Adjust the front, spine, and back panels.
+4. **Queue** — Add the finished design to your print sheet.
+5. **Export** — Generate a print-ready PDF.
+6. **Print and assemble** — Print at 100% scale, peel the label, and wrap it around the 3D-printed frame.
+7. **Tap and play** — Program the NFC puck with a music link and enjoy your mini collectible.
 
-HTML, CSS, and JavaScript — application interface and interactions
-MusicBrainz Web Service — album and release searches
-Cover Art Archive — available release artwork
-HTML Canvas — image composition, cropping, and label previews
-PDF export — printable sticker sheets
+**PRINT IT. STICK IT. TAP IT. PLAY IT.**
 
-The goal is to keep the application accessible without requiring a full desktop publishing program.
+---
 
-🧰 Getting Started
-Using the browser app
-Open the application in a supported browser.
-Search for an album and select a matching release.
-Choose the front and back artwork.
-Generate a spine or customize it with your own image.
-Preview the completed wraparound label.
-Add the album to the print queue.
-Repeat for your other albums.
-Export the mixed-album PDF.
-Print at Actual Size / 100%.
-Printing tips
-Use compatible 1 × 2⅝-inch adhesive labels.
-Disable Fit to Page and other automatic scaling.
-Print a test sheet on plain paper first.
-Check that the label positions match your sticker stock.
-Test the label against your 3D-printed frame before printing a full collection.
-📏 Physical Specifications
-Component	Specification
-Label width	2.625 in / 66.675 mm
-Label height	1 in / 25.4 mm
-Paper format	US Letter
-NFC puck	25 mm diameter
-Label construction	Single continuous wraparound sticker
-Frame	Custom 3D-printed design
+## 🧰 Getting Started
 
-The label dimensions describe the flat sticker, not the finished miniature case. The frame geometry should be designed and tested to match the intended wrap and puck placement.
+### Using the Browser App
 
-🗺️ Roadmap
+1. Open miniY2K in a supported browser.
+2. Search for an album and select a matching release.
+3. Choose the front and back artwork.
+4. Generate a spine or upload your own image.
+5. Preview and customize the complete wraparound label.
+6. Add the label to your print queue.
+7. Repeat for other albums in your collection.
+8. Export the mixed-album PDF.
+9. Print at **Actual Size / 100%**.
+10. Assemble your labels onto the corresponding 3D-printed frames.
 
-The long-term goal is to make creating a mini album collection as easy as building a playlist.
+> Availability of individual features depends on the current implementation. See the roadmap for planned improvements.
 
-Album search and release selection
-Front and back artwork browsing
-Automatic spine typography
-Custom font and color controls
-Mixed-album print queue
-Print-ready PDF export
-Saved projects and persistent collections
-Drag-and-drop queue ordering
-More label-stock presets
-Printer alignment calibration
-Improved artwork cropping and positioning
-Support for alternate editions and multi-disc releases
-NFC programming workflow
-Integration with the 3D-printed frame design
+---
 
-Roadmap items describe the intended direction of the project and may not all be implemented yet.
+## 📐 Label Specifications
 
-🎵 Artwork and Data Sources
+| Component | Specification |
+| --- | --- |
+| Label width | 2.625 in / 66.675 mm |
+| Label height | 1 in / 25.4 mm |
+| Paper format | US Letter, 8.5 × 11 in |
+| NFC puck | 25 mm diameter |
+| Label construction | Single continuous wraparound sticker |
+| Frame | Custom 3D-printed design |
 
-Album metadata can be retrieved from MusicBrainz, with available release artwork provided by the Cover Art Archive.
+The dimensions above describe the **flat sticker**, not the finished miniature case.
 
-Not every release has front and back images available, and spine images can be particularly difficult to find. Generated spine typography provides a practical fallback.
+The frame geometry must account for the label's front, spine, and back panels, as well as the placement and clearance of the NFC puck. Test the physical dimensions before producing a full collection.
 
-Users should respect the copyright, licensing, and usage terms associated with artwork. Anyone distributing or selling finished collectibles should ensure they have the necessary rights.
+---
 
-🤝 Contributing
+## 🖨️ Printing Guide
 
-Have an idea for a better label layout, a new Y2K-inspired design, or a more accurate print workflow?
+For the best results, use compatible adhesive label stock and verify alignment before committing to a full sheet.
+
+### Recommended Workflow
+
+1. Use sticker paper compatible with your printer.
+2. Export the label sheet as a PDF.
+3. Print a test copy on plain paper.
+4. Check the label positions against your sticker stock.
+5. Disable **Fit to Page**, **Scale to Fit**, and other automatic scaling options.
+6. Select **Actual Size** or **100% scale**.
+7. Test one label against the 3D-printed frame before printing an entire collection.
+
+### Default Print Dimensions
+
+- **Label size:** 1 × 2.625 inches
+- **Page size:** US Letter
+- **Layout:** Configurable rows, columns, spacing, and margins
+
+Printer drivers, paper handling, and label stock can introduce small alignment differences. Use the available margin and spacing controls to calibrate your setup.
+
+---
+
+## 📱 NFC Integration
+
+miniY2K is designed to work with NFC-enabled miniature album collectibles.
+
+### How It Works
+
+1. Place a compatible 25 mm NFC puck inside the 3D-printed frame.
+2. Program the NFC tag with the album's music URL.
+3. Assemble the frame and apply the wraparound label.
+4. Tap the collectible with a compatible phone to open the associated music destination.
+
+NFC functionality depends on the tag, phone, operating system, and programmed URL.
+
+**Note:** miniY2K's label-generation workflow does not, by itself, program NFC tags. Tag programming and frame assembly are separate steps.
+
+---
+
+## 🛠️ Technology
+
+miniY2K is designed as a lightweight browser-based application.
+
+| Technology | Purpose |
+| --- | --- |
+| HTML | Application structure |
+| CSS | Styling and responsive layouts |
+| JavaScript | Application logic and interactions |
+| MusicBrainz Web Service | Album and release metadata |
+| Cover Art Archive | Available release artwork |
+| HTML Canvas | Artwork composition, cropping, and previews |
+| PDF export | Printable sticker sheets |
+
+The goal is to make creating and printing miniature album collectibles accessible without requiring a full desktop publishing application.
+
+---
+
+## 🎨 Artwork and Data Sources
+
+Album metadata can be retrieved from the [MusicBrainz Web Service](https://musicbrainz.org/doc/MusicBrainz_API), with available release artwork provided by the [Cover Art Archive](https://coverartarchive.org/).
+
+Artwork availability varies by release. Some releases may have only a front cover, while others may have additional images. Spine artwork can be particularly difficult to find, making generated typography a useful alternative.
+
+Users are responsible for respecting applicable copyright, licensing, and usage terms. Before distributing or selling finished collectibles, ensure that you have the necessary rights to use the artwork and other protected materials.
+
+---
+
+## 🗺️ Roadmap
+
+The long-term goal is to make building a miniature album collection as easy as building a playlist.
+
+Potential improvements include:
+
+- [ ] Album search and release selection
+- [ ] Front and back artwork browsing
+- [ ] Automatic spine typography
+- [ ] Custom font and color controls
+- [ ] Mixed-album print queue
+- [ ] Print-ready PDF export
+- [ ] Saved projects and persistent collections
+- [ ] Drag-and-drop queue ordering
+- [ ] Additional label-stock presets
+- [ ] Printer alignment calibration
+- [ ] Improved artwork cropping and positioning
+- [ ] Support for alternate editions and multi-disc releases
+- [ ] NFC programming workflow
+- [ ] Integration with the 3D-printed frame design
+
+> Roadmap items describe intended development goals and may not yet be implemented. Update this checklist as features become available.
+
+---
+
+## 🤝 Contributing
+
+Have an idea for a better label layout, a new Y2K-inspired design, or a more accurate printing workflow?
 
 Contributions, bug reports, and feature requests are welcome.
 
-Improvements that make the process faster, simplify physical assembly, or improve print accuracy are especially appreciated.
+Improvements that simplify physical assembly, improve print accuracy, or make the creative process faster are especially appreciated.
 
-📜 License
+When submitting a contribution, please include enough context to reproduce bugs or understand the proposed change.
 
-A license has not yet been selected. Add a LICENSE file before distributing the project under an open-source license.
+---
+
+## 📜 License
+
+**No license has been selected yet.**
+
+Until a license is added, the project should not be assumed to be available for unrestricted reuse, modification, or redistribution.
+
+If you intend to distribute miniY2K as an open-source project, choose an appropriate license and add a `LICENSE` file to the repository.
+
+---
 
 <div align="center">
 
-💿 miniY2K
+## 💿 miniY2K
 
-PRINT IT. STICK IT. TAP IT. PLAY IT.
+**PRINT IT. STICK IT. TAP IT. PLAY IT.**
 
-Made for music lovers. Inspired by the year 2000.
+*Made for music lovers. Inspired by the year 2000.* ✨
 
 </div>
