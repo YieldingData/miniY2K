@@ -363,9 +363,10 @@ function makeCollectionItem(item, index) {
   remove.textContent = "Remove";
 
   remove.addEventListener("click", () => {
-    collection.splice(index, 1);
-    renderCollection();
-  });
+  collection.splice(index, 1);
+  renderCollection();
+  saveCollection();
+});
 
   card.append(image, title, artist, remove);
 
